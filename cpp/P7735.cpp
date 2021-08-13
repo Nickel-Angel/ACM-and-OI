@@ -2,69 +2,90 @@
 #include <cstdio>
 #include <cstring>
 #include <iostream>
+#include <vector>
+
+using std::max;
+using std::min;
+using std::swap;
 
 const int maxn = 1e5 + 10;
-int head[maxn], to[maxn], next[maxn], tot = 0;
+int head[maxn], to[maxn << 1], next[maxn << 1], tot = 0;
 int T, n, m, par[maxn], son[maxn], depth[maxn], size[maxn];
-int top[maxn], rev_dfn[maxn], dfn[maxn], dfs_t, cur_time;
+int top[maxn], rev_dfn[maxn], dfn[maxn], dfs_t;
 
-template<typename T1, typename T2>
-T1 max(T1 x, T2 y)
+struct data
 {
-    return x > y ? x : y;
-}
+    int lc, rc, sum;
 
-template<typename T1, typename T2>
-T1 min(T1 x, T2 y)
-{
-    return x < y ? x : y;
-}
+    data() {}
+
+    data(int _lc, int _rc, int _sum)
+    {
+        lc = _lc, rc = _rc, sum = _sum;
+    }
+};
 
 class Segtree
 {
     #define lson u << 1
     #define rson u << 1 | 1
   private:
-    int time[maxn << 2], sum[maxn << 2], tag_t[maxn << 2];
-    bool tag_s[maxn << 2];
-    
+    int color[maxn << 2][2], sum[maxn << 2], lazy[maxn << 2];
+
     inline void pushdown(int s, int e, int u)
     {
-        tag_t[rson] = time[u], tag_t[lson] = tag_t[u];
-        time[lson] = time[u], time[rson] = time[u];
-        if (!tag_s[u]) return;
+        if (!lazy[u]) return;
         int mid = (s + e) >> 1;
-        sum[lson] = mid - s + 1, sum[rson] = e - mid;
-        tag_s[lson] = true, tag_s[rson] = true;
-        tag_s[u] = false;
+        lazy[lson] = lazy[u], color[lson][0] = lazy[u], color[lson][1] = lazy[u];
+        lazy[rson] = lazy[u], color[rson][0] = lazy[u], color[rson][1] = lazy[u];
+        sum[lson] = mid - s, sum[rson] = e - mid - 1;
+        lazy[u] = 0;
     }
 
   public:
-    void build(int s, int e, int u)
+    inline void build(int s, int e, int u)
     {
-        sum[u] = 0, time[u] = 0;
-        tag_t[u] = 0, tag_s[u] = false;
+        color[u][0] = 0, color[u][1] = 0;
+        sum[u] = 0, lazy[u] = 0;
         if (s == e) return;
         int mid = (s + e) >> 1;
         build(s, mid, lson), build(mid + 1, e, rson);
-
     }
 
-    void modify(int s, int e, int ql, int qr, int u)
+    void modify(int s, int e, int ql, int qr, int u, int c)
     {
         if (ql <= s && e <= qr)
         {
-            tag_s[u] = true;
-            tag_t[u] = cur_time;
-            sum[u] = e - s + 1;
+            color[u][0] = c, color[u][1] = c;
+            sum[u] = e - s, lazy[u] = c;
             return;
         }
         pushdown(s, e, u);
         int mid = (s + e) >> 1;
-        if (ql <= mid) modify(s, mid, ql, qr, lson);
-        if (qr > mid) modify(mid + 1, e, ql, qr, rson);
+        if (ql <= mid) modify(s, mid, ql, qr, lson, c);
+        if (qr > mid) modify(mid + 1, e, ql, qr, rson, c);
+        color[u][0] = color[lson][0], color[u][1] = color[rson][1];
         sum[u] = sum[lson] + sum[rson];
+        if (color[lson][1] == color[rson][0]) ++sum[u];
     }
+
+    inline data query(int s, int e, int ql, int qr, int u)
+    {
+        if (ql <= s && e <= qr) return data(color[u][0], color[u][1], sum[u]);
+        pushdown(s, e, u);
+        int mid = (s + e) >> 1;
+        if (ql <= mid && qr > mid)
+        {
+            data res_l = query(s, mid, ql, qr, lson);
+            data res_r = query(mid + 1, e, ql, qr, rson);
+            int res = res_l.sum + res_r.sum;
+            if (res_l.rc == res_r.lc) ++res;
+            return data(res_l.lc, res_r.rc, res);
+        }
+        if (ql <= mid) return query(s, mid, ql, qr, lson);
+        return query(mid + 1, e, ql, qr, rson);
+    }
+
     #undef lson
     #undef rson
 }tree;
@@ -105,6 +126,67 @@ void dfs_top(int u, int anc)
     }
 }
 
+inline void update(int x, int y, int c)
+{
+    while (top[x] != top[y])
+    {
+        if (depth[top[x]] < depth[top[y]]) swap(x, y);
+        tree.modify(1, n, dfn[top[x]], dfn[x], 1, c);
+        x = par[top[x]];
+    }
+    if (depth[x] > depth[y]) swap(x, y);
+    tree.modify(1, n, dfn[x], dfn[y], 1, c);
+}
+
+inline int query(int x, int y)
+{
+    int cur = 0;
+    data ans[2], res;
+    ans[0] = data(0, 0, 0), ans[1] = data(0, 0, 0);
+    while (top[x] != top[y])
+    {
+        if (depth[top[x]] < depth[top[y]])
+        {
+            swap(x, y);
+            cur ^= 1;
+        }
+        res = tree.query(1, n, dfn[top[x]], dfn[x], 1);
+        if (cur == 0)
+        {
+            ans[0].sum += res.sum;
+            if (ans[0].rc == res.rc) ++ans[0].sum;
+            ans[0].rc = res.lc;
+        }
+        else
+        {
+            ans[1].sum += res.sum;
+            if (ans[1].lc == res.rc) ++ans[1].sum;
+            ans[1].lc = res.lc;
+        }
+        x = par[top[x]];
+    }
+    if (depth[x] < depth[y])
+    {
+        swap(x, y);
+        cur ^= 1;
+    }
+    res = tree.query(1, n, dfn[y], dfn[x], 1);
+    if (cur == 0)
+    {
+        ans[0].sum += res.sum;
+        if (ans[0].rc == res.rc) ++ans[0].sum;
+        ans[0].rc = res.lc;
+    }
+    else
+    {
+        ans[1].sum += res.sum;
+        if (ans[1].lc == res.rc) ++ans[1].sum;
+        ans[1].lc = res.lc;
+    }
+    if (ans[0].rc == ans[1].lc) return ans[0].sum + ans[1].sum + 1;
+    return ans[0].sum + ans[1].sum;
+}
+
 int main()
 {
     scanf("%d", &T);
@@ -114,25 +196,21 @@ int main()
         std::memset(head, 0, sizeof(head));
         std::memset(son, 0, sizeof(son));
         scanf("%d%d", &n, &m);
-        for (int i = 0, u, v; i < n; ++i)
+        for (int i = 1, u, v; i < n; ++i)
         {
             scanf("%d%d", &u, &v);
             add_edge(u, v), add_edge(v, u);
         }
         dfs_son(1, 0), dfs_top(1, 1);
         tree.build(1, n, 1);
+        for (int i = 1; i <= n; ++i)
+            tree.modify(1, n, dfn[i], dfn[i], 1, -dfn[i]);
         int opt, a, b;
-        for (cur_time = 1; cur_time <= m; ++cur_time)
+        while (m--)
         {
             scanf("%d%d%d", &opt, &a, &b);
-            if (opt == 1)
-            {
-
-            }
-            else
-            {
-
-            }
+            if (opt == 1) update(a, b, m + 1);
+            else printf("%d\n", query(a, b));
         }
     }
     return 0;
