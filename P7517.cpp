@@ -1,3 +1,8 @@
+/*
+* @author Nickel_Angel (1239004072@qq.com)
+* @copyright Copyright (c) 2021
+*/
+
 #include <algorithm>
 #include <cstdio>
 #include <iostream>
