@@ -12,10 +12,6 @@
 
 using std::min;
 using std::max;
-using std::isdigit;
-using std::isalpha;
-using std::memset;
-using std::memcpy;
 
 typedef std::pair<int, int> P;
 
