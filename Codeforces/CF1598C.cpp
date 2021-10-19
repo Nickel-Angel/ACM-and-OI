@@ -6,20 +6,40 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
-#include <unordered_map>
+#include <cctype>
+#include <map>
 
 const int maxn = 2e5 + 10;
 int n, a[maxn];
-std::unordered_map<int, int> f;
+std::map<int, int> f;
+
+template<typename T>
+inline void input(T &x)
+{
+    x = 0;
+    char ch = getchar();
+    bool flag = false;
+    while (!isdigit(ch))
+    {
+        flag |= (ch == '-');
+        ch = getchar();
+    }
+    while (isdigit(ch))
+    {
+        x = (x << 1) + (x << 3) + (ch ^ 48);
+        ch = getchar();
+    }
+    x = flag ? -x : x;
+}
 
 inline void solve()
 {
     f.clear();
-    scanf("%d", &n);
+    input(n);
     long long sum = 0;
     for (int i = 1; i <= n; ++i)
     {
-        scanf("%d", a + i);
+        input(a[i]);
         sum += a[i];
     }
     if (sum * 2 % n != 0)
@@ -40,7 +60,7 @@ inline void solve()
 int main()
 {
     int t;
-    scanf("%d", &t);
+    input(t);
     while (t--)
         solve();
     return 0;
