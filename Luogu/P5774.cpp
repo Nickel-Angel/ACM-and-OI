@@ -22,12 +22,11 @@ int main()
         scanf("%d", a + i);
         s[i] = s[i - 1] + a[i];
     }
-    for (int j = 1; j <= n; ++j)
+    for (int i = 1; i <= n; ++i)
     {
-        g[j][j] = s[n] - s[j];
-        for (int i = j - 1; i > 0; --i)
+        for (int j = i - 1; j > 0; --j)
         {
-            g[i][j] = g[i + 1][j] + s[n] - s[i] + s[n] - s[j] + min(s[j] - s[i], 3ll * (j - i) * a[i] + s[n] - s[j]);
+            g[i][j] = g[i][j + 1] + s[i] - s[j] + min(3ll * (i - j) * a[j], s[i] - s[j]);
         }
     }
     memset(f, 0x3f, sizeof(f));
@@ -36,7 +35,7 @@ int main()
     {
         for (int j = 0; j < i; ++j)
         {
-            f[i] = min(f[i], f[j] + (j != 0) * (s[n] - s[j]) + g[j + 1][i] + (s[n] - s[i]) * (i - j - 1));
+            f[i] = min(f[i], f[j] + g[i][j + 1] + (s[n] - s[i]) * (4ll * (i - j) - 2));
         }
     }
     printf("%lld\n", f[n]);
