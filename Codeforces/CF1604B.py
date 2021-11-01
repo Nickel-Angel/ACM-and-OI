@@ -10,6 +10,5 @@ def solve():
     return
 
 t = int(input())
-while t:
-    t -= 1
+for i in range(0, t):
     solve()
