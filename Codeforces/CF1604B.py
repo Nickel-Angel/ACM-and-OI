@@ -1,11 +1,6 @@
 # @author Nickel_Angel (1239004072@qq.com)
 # @copyright Copyright (c) 2021
 
-def max(a, b):
-    if (a > b):
-        return a
-    return b
-
 def solve():
     n, k = map(int, input().split())
     x = 0
