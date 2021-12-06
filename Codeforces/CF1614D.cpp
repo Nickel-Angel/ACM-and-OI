@@ -13,9 +13,8 @@ using std::vector;
 
 const int maxn = 1e5 + 10;
 const int maxa = 2e7 + 10;
-int n, a[maxn];
+int n, a[maxn], prime[maxa], cnt_p;
 long long f[maxa], cnt[maxa];
-vector<int> prime;
 bool vis[maxa];
 
 inline void Euler(int bound)
@@ -24,13 +23,11 @@ inline void Euler(int bound)
     for (int i = 2; i <= bound; ++i)
     {
         if (!vis[i])
-            prime.push_back(i);
-        for (int p : prime)
+            prime[++cnt_p] = i;
+        for (int j = 1; j <= cnt_p && 1ll * i * prime[j] <= bound; ++j)
         {
-            if (1ll * p * i > bound)
-                break;
-            vis[i * p] = true;
-            if (i % p == 0)
+            vis[i * prime[j]] = true;
+            if (i % prime[j] == 0)
                 break;
         }
     }
@@ -43,30 +40,26 @@ int main()
     for (int i = 1; i <= n; ++i)
     {
         scanf("%d", a + i);
-        ++cnt[a[i]];
         bound = max(bound, a[i]);
-    }
-    Euler(bound);
-    for (int j : prime)
-    {
-        for (int i = bound / j; i > 0; --i)
+        for (int j = 1; j * j <= a[i]; ++j)
         {
-            if (1ll * i * j > bound)
-                break;
-            cnt[i] += cnt[i * j];
+            if (a[i] % j == 0)
+            {
+                ++cnt[j];
+                if (j * j != a[i])
+                    ++cnt[a[i] / j];
+            }
         }
     }
+    Euler(bound);
     long long ans = 0;
     for (int i = bound; i > 0; --i)
     {
         f[i] = max(f[i], cnt[i] * i);
-        for (int j : prime)
-        {
-            if (1ll * i * j > bound)
-                continue;
-            f[i] = max(f[i], 1ll * i * (cnt[i] - cnt[i * j]) + f[i * j]);
-        }
-        ans = max(ans, f[i]);
+        for (int j = 1; j <= cnt_p && 1ll * i * prime[j] <= bound; ++j)
+            f[i] = max(f[i], i * (cnt[i] - cnt[i * prime[j]]) + f[i * prime[j]]);
+        if (cnt[i] == n)
+            ans = max(ans, f[i]);
     }
     printf("%lld\n", ans);
     return 0;
