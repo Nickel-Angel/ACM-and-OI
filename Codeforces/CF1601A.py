@@ -3,7 +3,7 @@
 
 def solve():
     n = int(input())
-    a = [0] + [*map(int, input().split())];
+    a = [0] + [*map(int, input().split())]
     cnt = [0] * 40
     for i in range(0, 31):
         for j in range(1, n + 1):
