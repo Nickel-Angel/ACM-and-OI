@@ -23,21 +23,20 @@ inline int max(int x, int y)
 
 void dfs(int u)
 {
-    f[u][0] = a[u];
+    size[u] = 1, f[u][1] = a[u], f[u][0] = 0;
     for (int c = head[u], v; c; c = next[c])
     {
         v = to[c];
         dfs(v);
-        for (int i = size[u]; i >= 0; --i)
+        for (int i = size[u]; i > 0; --i)
         {   
-            for (int j = size[v] - 1; j >= 0; --j)
+            for (int j = size[v]; j >= 0; --j)
             {
-                f[u][i + j + 1] = max(f[u][i + j + 1], f[u][i] + f[v][j]);
+                f[u][i + j] = max(f[u][i + j], f[u][i] + f[v][j]);
             }
         }
         size[u] += size[v];
     }
-    ++size[u];
 }
 
 int main()
@@ -56,7 +55,7 @@ int main()
     while (q--)
     {
         scanf("%d%d", &u, &m);
-        printf("%d\n", f[u][m - 1]);
+        printf("%d\n", f[u][m]);
     }
     return 0;
 }
