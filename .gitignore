@@ -1,5 +1,7 @@
 # Private or temperary files
-.vscode/*
+.vscode
+Codeforces/.vscode/
+Lanqiao/
 Model/
 Nowcoder/
 Unfinished/
