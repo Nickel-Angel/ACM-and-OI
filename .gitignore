@@ -1,0 +1,50 @@
+# Private or temperary files
+.vscode/*
+Model/
+Nowcoder/
+Unfinished/
+/A.cpp
+/B.cpp
+/C.cpp
+/D.cpp
+/E.cpp
+/F.cpp
+/game.bat
+/cleaner.bat
+/lesson.py
+/tempCodeRunnerFile.cpp
+/random.cpp
+**/test.cpp
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
