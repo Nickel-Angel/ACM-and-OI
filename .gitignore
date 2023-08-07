@@ -1,6 +1,5 @@
 # Private or temperary files
 .vscode
-Codeforces/.vscode/
 Lanqiao/
 Model/
 Nowcoder/
@@ -11,6 +10,8 @@ Unfinished/
 /D.cpp
 /E.cpp
 /F.cpp
+/G.cpp
+/H.cpp
 /game.bat
 /cleaner.bat
 /lesson.py
